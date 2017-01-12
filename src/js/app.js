@@ -1,6 +1,80 @@
+// google maps
+let map;
+let service;
+
+const google = google;
+function initMap() {
+  map = new google.maps.Map(document.getElementById('map-canvas'), {
+    center: new google.maps.LatLng(51.519132, -0.094205),
+    zoom: 11
+  });
+  var infoWindow = new google.maps.InfoWindow({map: map});
+
+  // Try HTML5 geolocation.
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var pos = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+      map.setCenter(pos);
+    }, function() {
+      handleLocationError(true, infoWindow, map.getCenter());
+    });
+  } else {
+    // Browser doesn't support Geolocation
+    handleLocationError(false, infoWindow, map.getCenter());
+  }
+  function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+    infoWindow.setPosition(pos);
+    infoWindow.setContent(browserHasGeolocation ? 'Error: The Geolocation service failed.' : 'Error: Your browser doesn\'t support geolocation.');
+  }
+  showPrisons();
+}
+
+function showPrisons() {
+  const request = {
+    location: map.getCenter(),
+    radius: '50000',
+    query: 'prison'
+  };
+  service = new google.maps.places.PlacesService(map);
+  service.textSearch(request, searchForPrison);
+}
+
+function searchForPrison(results, status) {
+  if (status === google.maps.places.PlacesServiceStatus.OK) {
+    for (var i = 0; i < results.length; i++) {
+      var prison = results[i];
+      // console.log(prison);
+      createMarkerPrison(prison);
+    }
+  }
+}
+
+function createMarkerPrison(prison) {
+  const marker = new google.maps.Marker({
+    position: prison.geometry.location,
+    map: map,
+    animation: google.maps.Animation.DROP
+  });
+}
+
+// log in and log out
+
+const apiUrl = 'http://localhost:3000/api';
+
 function init() {
   $('.registration').on('click', registerForm);
   $('.login').on('click', loginForm);
+  $('.logout').on('click', logOut);
+  $('body').on('submit', 'form', submittedForm);
+  if (getToken()) {
+    loggedInState();
+  } else {
+    loggedOutState();
+  }
+  initMap();
 }
 
 function registerForm(e) {
@@ -60,6 +134,54 @@ function loginForm(e) {
       </form>
     </div>`);
 }
+
+function submittedForm(e) {
+  if (e) e.preventDefault();
+  $.ajax({
+    url: `${apiUrl}${$(this).attr('action')}`,
+    method: $(this).attr('method'),
+    data: $(this).serialize(),
+    beforeSend: setRequestHeader
+  }).done((data) => {
+    if (data.token) setToken(data.token);
+    loggedInState();
+  });
+  $('.main').hide();
+}
+
+function setToken(token) {
+  return window.localStorage.setItem('token', token);
+}
+
+function setRequestHeader(xhr) {
+  return xhr.setRequestHeader('Authorization', `Bearer ${getToken()}`);
+}
+
+function getToken() {
+  return window.localStorage.getItem('token');
+}
+
+function removeToken() {
+  return window.localStorage.clear();
+}
+
+function loggedInState() {
+  $('.loggedIn').show();
+  $('.loggedOut').hide();
+}
+
+function loggedOutState() {
+  $('.loggedIn').hide();
+  $('.loggedOut').show();
+}
+
+function logOut(e) {
+  e.preventDefault();
+  loggedOutState();
+  loginForm();
+  removeToken();
+}
+
 
 
 
