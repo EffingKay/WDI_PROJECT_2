@@ -20,6 +20,7 @@ function initMap() {
       showPrisons();
     }, 200);
   }
+  $('.tabs').hide();
   $('.trains').on('click', showTrains);
   $('.airports').on('click', showAirports);
 
@@ -74,9 +75,10 @@ function infoWindowPrison(prison, marker) {
       clearMarkers();
       createMarkerPrison(prison, map);
       google.maps.event.removeListener(newPrisonsListener);
-      getPrisonLatLng(prisonObject.address);
       prisonObject.address = prison.formatted_address;
+      getPrisonLatLng(prisonObject.address);
       console.log(prisonObject);
+      $('.tabs').show();
     });
   });
 }
@@ -110,12 +112,14 @@ function setMapOnAll(map) {
 
 function showTrains() {
   const request = {
-    location: map.getCenter(),
+    location: {lat: prisonObject.lat, lng: prisonObject.lng},
     radius: '50000',
     query: 'rail station'
   };
   service = new google.maps.places.PlacesService(map);
   service.textSearch(request, searchForStations);
+  map.setZoom(12);
+  $('.trains').html('Hide trains');
 }
 
 function searchForStations(results, status) {
@@ -130,7 +134,7 @@ function searchForStations(results, status) {
 function createMarkerStation(station, map) {
   const marker = new google.maps.Marker({
     position: station.geometry.location,
-    map,
+    map: map,
     icon: 'https://cdn3.iconfinder.com/data/icons/mapicons/icons/steamtrain.png'
   });
   infoWindowStation(station, marker);
@@ -140,15 +144,47 @@ function infoWindowStation(station, marker) {
   google.maps.event.addListener(marker, 'click', () => {
     if (typeof infoWindow !== 'undefined') infoWindow.close();
     infoWindow = new google.maps.InfoWindow({
-      content: `<h4>${station.name}</h4>`
+      content: `<h4>${station.name}</h4>
+                <button class="waves-effect waves-teal btn-flat">get here</button>`
     });
+    infoWindow.open(map, marker);
   });
 }
 
 
 // airports
 function showAirports() {
+  const url = `https://api.sandbox.amadeus.com/v1.2/airports/nearest-relevant?apikey=yGCL11tesreUoG0MGKkjSYqMsAMwEju3&latitude=${prisonObject.lat}&longitude=${prisonObject.lng}`;
+  $.ajax(url).done(data => {
+    data.forEach(airport => {
+      console.log(airport);
+      createMarkerAirport(airport, map);
+      map.setZoom(9);
+    });
+  });
+}
 
+function createMarkerAirport(airport, map) {
+  const latLng = {lat: airport.location.latitude, lng: airport.location.longitude};
+  const marker = new google.maps.Marker({
+    position: latLng,
+    map,
+    icon: 'https://cdn4.iconfinder.com/data/icons/aiga-symbol-signs/612/aiga_air_transportation_bg-32.png'
+  });
+  infoWindowAirport(airport, marker);
+}
+
+function infoWindowAirport(airport, marker) {
+  google.maps.event.addListener(marker, 'click', () => {
+    if (typeof infoWindow !== 'undefined') infoWindow.close();
+    infoWindow = new google.maps.InfoWindow({
+      content: `<h4>${airport.airport_name}</h4>
+                <h6>Distance: ${airport.distance} km</h6>
+                <h6>Aircraft movements: ${airport.aircraft_movements}</h6>
+                <button class="waves-effect waves-teal btn-flat">get here</button>`
+    });
+    infoWindow.open(map, marker);
+  });
 }
 
 $(initMap);
