@@ -24,7 +24,7 @@ function registerForm(e) {
         <div class="row">
           <div class="input-field col s12">
           <input id="user_name" type="text" class="validate" name="user[username]">
-          <label for="user_name">Username</label>
+          <label for="user_name">Username (we recommend not to use your real name)</label>
           </div>
         </div>
         <div class="row">
