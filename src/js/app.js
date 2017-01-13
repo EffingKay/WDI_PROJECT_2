@@ -4,8 +4,10 @@ let map;
 let service;
 let infoWindow;
 let prisonMarkers = [];
+let trainMarkers = [];
 let newPrisonsListener;
 const prisonObject = {};
+const destination = {};
 const google = google;
 
 function initMap() {
@@ -23,7 +25,7 @@ function initMap() {
   $('.tabs').hide();
   $('.trains').on('click', showTrains);
   $('.airports').on('click', showAirports);
-
+  $('.journey').on('click', journeyPlanner);
 }
 
 function showPrisons() {
@@ -40,8 +42,6 @@ function searchForPrison(results, status) {
   if (status === google.maps.places.PlacesServiceStatus.OK) {
     for (var i = 0; i < results.length; i++) {
       var prison = results[i];
-      // console.log(prison.name);
-      // console.log(prison.formatted_address);
       createMarkerPrison(prison, map);
     }
   }
@@ -69,26 +69,24 @@ function infoWindowPrison(prison, marker) {
                 <button class="myPrison waves-effect waves-teal btn-flat">Escape from here</button>`
     });
     infoWindow.open(map, marker);
-    $('body').on('click', '.myPrison', () => {
+    $('#map-canvas').on('click', '.myPrison', () => {
+      clearMarkers();
       map.setZoom(15);
       infoWindow.close();
       clearMarkers();
-      createMarkerPrison(prison, map);
       google.maps.event.removeListener(newPrisonsListener);
       prisonObject.address = prison.formatted_address;
       getPrisonLatLng(prisonObject.address);
-      console.log(prisonObject);
       $('.tabs').show();
+      createMarkerPrison(prison, map);
     });
   });
 }
 
 function getPrisonLatLng(address) {
-  const addressFormatted = address.split(' ').join('+');
-  console.log(addressFormatted);
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${addressFormatted}&key=AIzaSyDXaR7rUFJyMSNs2AIRsKRiwvNVTso_8lY`;
+  prisonObject.addressFormatted = address.split(' ').join('+');
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${prisonObject.addressFormatted}&key=AIzaSyDXaR7rUFJyMSNs2AIRsKRiwvNVTso_8lY`;
   $.ajax(url).done(data => {
-    // console.log(data.results[0].geometry.location);
     prisonObject.lat = data.results[0].geometry.location.lat;
     prisonObject.lng = data.results[0].geometry.location.lng;
   });
@@ -109,7 +107,6 @@ function setMapOnAll(map) {
 
 
 // train stations
-
 function showTrains() {
   const request = {
     location: {lat: prisonObject.lat, lng: prisonObject.lng},
@@ -118,6 +115,7 @@ function showTrains() {
   };
   service = new google.maps.places.PlacesService(map);
   service.textSearch(request, searchForStations);
+  map.setCenter(new google.maps.LatLng(prisonObject.lat, prisonObject.lng));
   map.setZoom(12);
   $('.trains').html('Hide trains');
 }
@@ -145,9 +143,13 @@ function infoWindowStation(station, marker) {
     if (typeof infoWindow !== 'undefined') infoWindow.close();
     infoWindow = new google.maps.InfoWindow({
       content: `<h4>${station.name}</h4>
-                <button class="waves-effect waves-teal btn-flat">get here</button>`
+                <button class="destination waves-effect waves-teal btn-flat">get here</button>`
     });
     infoWindow.open(map, marker);
+    $('#map-canvas').on('click', '.destination', () => {
+      destination.location = marker.getPosition();
+      journeyPlanner();
+    });
   });
 }
 
@@ -181,10 +183,59 @@ function infoWindowAirport(airport, marker) {
       content: `<h4>${airport.airport_name}</h4>
                 <h6>Distance: ${airport.distance} km</h6>
                 <h6>Aircraft movements: ${airport.aircraft_movements}</h6>
-                <button class="waves-effect waves-teal btn-flat">get here</button>`
+                <button id="${airport.airport_name}" class="destination waves-effect waves-teal btn-flat">get here</button>`
     });
     infoWindow.open(map, marker);
+    $('#map-canvas').on('click', '.destination', () => {
+      destination.location = '';
+      destination.location = marker.getPosition();
+      journeyPlanner();
+    });
   });
+}
+
+
+// car rentals
+
+// function showCars() {
+//   // ajax call to amadeus url , needing:
+//   // lat and lng - prisonObject.lat && prisonObject.lng
+//   // date -  pick up and drop off
+//   // radius and api key
+//   // https://api.sandbox.amadeus.com/v1.2/cars/search-circle?apikey=yGCL11tesreUoG0MGKkjSYqMsAMwEju3&latitude=35.1504&longitude=-114.57632&radius=42&pick_up=2016-11-07&drop_off=2016-11-08
+//   const today = new Date();
+//   let dd = today.getDate();
+//   let mm = today.getMonth()+1; //January is 0!
+//   const yyyy = today.getFullYear();
+//   if(dd<10) dd='0'+dd;
+//   if(mm<10) mm='0'+mm;
+//   const date = `${yyyy}-${mm}-${dd}`;
+//   const url = `https://api.sandbox.amadeus.com/v1.2/cars/search-circle?apikey=yGCL11tesreUoG0MGKkjSYqMsAMwEju3&latitude=${prisonObject.lat}&longitude=${prisonObject.lng}&radius=42&pick_up=${date}&drop_off=${date}`;
+//   $.ajax(url).done(data => console.log(data));
+// }
+
+// journey planner
+function journeyPlanner() {
+  const directionsService = new google.maps.DirectionsService;
+  const directionsDisplay = new google.maps.DirectionsRenderer;
+  directionsDisplay.setMap(map);
+  function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+    directionsService.route({
+      origin: `${prisonObject.lat},${prisonObject.lng}`,
+      destination: destination.location,
+      travelMode: 'DRIVING'
+    }, function(response, status) {
+      if (status === 'OK') {
+        directionsDisplay.setDirections(response);
+      } else {
+        window.alert('Directions request failed due to ' + status);
+      }
+    });
+  }
+  calculateAndDisplayRoute(directionsService, directionsDisplay);
+  clearMarkers();
+  infoWindow.close();
+
 }
 
 $(initMap);
