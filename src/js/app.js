@@ -4,7 +4,6 @@ let map;
 let service;
 let infoWindow;
 let prisonMarkers = [];
-let trainMarkers = [];
 let newPrisonsListener;
 const prisonObject = {};
 const destination = {};
@@ -195,24 +194,7 @@ function infoWindowAirport(airport, marker) {
 }
 
 
-// car rentals
 
-// function showCars() {
-//   // ajax call to amadeus url , needing:
-//   // lat and lng - prisonObject.lat && prisonObject.lng
-//   // date -  pick up and drop off
-//   // radius and api key
-//   // https://api.sandbox.amadeus.com/v1.2/cars/search-circle?apikey=yGCL11tesreUoG0MGKkjSYqMsAMwEju3&latitude=35.1504&longitude=-114.57632&radius=42&pick_up=2016-11-07&drop_off=2016-11-08
-//   const today = new Date();
-//   let dd = today.getDate();
-//   let mm = today.getMonth()+1; //January is 0!
-//   const yyyy = today.getFullYear();
-//   if(dd<10) dd='0'+dd;
-//   if(mm<10) mm='0'+mm;
-//   const date = `${yyyy}-${mm}-${dd}`;
-//   const url = `https://api.sandbox.amadeus.com/v1.2/cars/search-circle?apikey=yGCL11tesreUoG0MGKkjSYqMsAMwEju3&latitude=${prisonObject.lat}&longitude=${prisonObject.lng}&radius=42&pick_up=${date}&drop_off=${date}`;
-//   $.ajax(url).done(data => console.log(data));
-// }
 
 // journey planner
 function journeyPlanner() {
@@ -239,3 +221,25 @@ function journeyPlanner() {
 }
 
 $(initMap);
+
+
+
+
+// car rentals
+
+// function showCars() {
+//   // ajax call to amadeus url , needing:
+//   // lat and lng - prisonObject.lat && prisonObject.lng
+//   // date -  pick up and drop off
+//   // radius and api key
+//   // https://api.sandbox.amadeus.com/v1.2/cars/search-circle?apikey=yGCL11tesreUoG0MGKkjSYqMsAMwEju3&latitude=35.1504&longitude=-114.57632&radius=42&pick_up=2016-11-07&drop_off=2016-11-08
+//   const today = new Date();
+//   let dd = today.getDate();
+//   let mm = today.getMonth()+1; //January is 0!
+//   const yyyy = today.getFullYear();
+//   if(dd<10) dd='0'+dd;
+//   if(mm<10) mm='0'+mm;
+//   const date = `${yyyy}-${mm}-${dd}`;
+//   const url = `https://api.sandbox.amadeus.com/v1.2/cars/search-circle?apikey=yGCL11tesreUoG0MGKkjSYqMsAMwEju3&latitude=${prisonObject.lat}&longitude=${prisonObject.lng}&radius=42&pick_up=${date}&drop_off=${date}`;
+//   $.ajax(url).done(data => console.log(data));
+// }
