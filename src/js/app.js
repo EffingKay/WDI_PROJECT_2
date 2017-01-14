@@ -164,6 +164,8 @@ function infoWindowStation(station, marker) {
     infoWindow.open(map, marker);
     $('.destination').on('click', () => {
       destination.location = marker.getPosition();
+      destination.lat = marker.getPosition().lat();
+      destination.lng = marker.getPosition().lng();
       journeyPlanner(destination.location);
     });
   });
@@ -200,7 +202,6 @@ function infoWindowAirport(airport, marker) {
     if (typeof infoWindow !== 'undefined') infoWindow.close();
     infoWindow = new google.maps.InfoWindow({
       content: `<h4>${airport.airport_name}</h4>
-                <h6>Distance: ${airport.distance} km</h6>
                 <h6>Aircraft movements: ${airport.aircraft_movements}</h6>
                 <button id="${airport.airport_name}" class="destination waves-effect waves-teal btn-flat">get here</button>`
     });
@@ -208,6 +209,8 @@ function infoWindowAirport(airport, marker) {
     $('.destination').on('click', () => {
       destination.location = '';
       destination.location = marker.getPosition();
+      destination.lat = marker.getPosition().lat();
+      destination.lng = marker.getPosition().lng();
       journeyPlanner(destination.location);
     });
   });
@@ -273,6 +276,45 @@ function journeyPlanner(destination) {
   }
   calculateAndDisplayRoute(directionsService, directionsDisplay);
   infoWindow.close();
+  journeyDetails();
+}
+
+
+function journeyDetails() {
+  service = new google.maps.DistanceMatrixService();
+  service.getDistanceMatrix(
+    {
+      origins: [{lat: prisonObject.lat, lng: prisonObject.lng}],
+      destinations: [{lat: destination.lat, lng: destination.lng}],
+      travelMode: 'DRIVING',
+      unitSystem: google.maps.UnitSystem.METRIC,
+      durationInTraffic: true,
+      avoidHighways: false,
+      avoidTolls: false
+    }, responseData);
+
+  function responseData(responseDis, status) {
+    if (status !== google.maps.DistanceMatrixStatus.OK || status !== 'OK'){
+      console.log('Error:', status);
+    } else{
+      console.log(responseDis.rows[0].elements[0].distance.text);
+      console.log(responseDis);
+      $('.tabs').on('click', '.journey', () => appendJourneyInfo(responseDis));
+    }
+
+  }
+
+  function appendJourneyInfo(responseDis) {
+    $('nav').append(`
+      <div class="journeyDetails">
+        <ul class="collection">
+          <li class="collection-item">
+            <p class="blue-text text-darken-2">Distance: ${responseDis.rows[0].elements[0].distance.text}</p>
+          </li>
+        </ul>
+      </div>
+    `);
+  }
 }
 
 
