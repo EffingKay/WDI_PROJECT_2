@@ -4,17 +4,24 @@ let map;
 let service;
 let infoWindow;
 let prisonMarkers = [];
+const stationMarkers = [];
+const airportMarkers = [];
 let newPrisonsListener;
 const prisonObject = {};
 const destination = {};
 const google = google;
+let directionsService;
+let directionsDisplay = new google.maps.DirectionsRenderer({suppressMarkers: true});
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map-canvas'), {
     center: new google.maps.LatLng(51.519132, -0.094205),
-    zoom: 11
+    zoom: 9
+    // styles: [{"stylers":[{"visibility":"on"},{"saturation":-100},{"gamma":0.54}]},{"featureType":"road","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"color":"#4d4946"}]},{"featureType":"poi","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"poi","elementType":"labels.text","stylers":[{"visibility":"simplified"}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"color":"#ffffff"}]},{"featureType":"road.local","elementType":"labels.text","stylers":[{"visibility":"simplified"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#ffffff"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"gamma":0.48}]},{"featureType":"transit.station","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"road","elementType":"geometry.stroke","stylers":[{"gamma":7.18}]}]
   });
   showPrisons();
+  hideStations();
+  hideAirports();
   newPrisonsListener = map.addListener('center_changed', newPrisons);
   function newPrisons() {
     window.setTimeout(function() {
@@ -22,9 +29,11 @@ function initMap() {
     }, 200);
   }
   $('.tabs').hide();
-  $('.trains').on('click', showTrains);
-  $('.airports').on('click', showAirports);
-  $('.journey').on('click', journeyPlanner);
+  $('.brand-logo').on('click', initMap);
+  $('.tabs').on('click', '.showTrains', showTrains);
+  $('.tabs').on('click', '.hideTrains', hideStations);
+  $('.tabs').on('click', '.showAirports', showAirports);
+  $('.tabs').on('click', '.hideAirports', hideAirports);
 }
 
 function showPrisons() {
@@ -69,15 +78,15 @@ function infoWindowPrison(prison, marker) {
     });
     infoWindow.open(map, marker);
     $('#map-canvas').on('click', '.myPrison', () => {
-      clearMarkers();
       map.setZoom(15);
       infoWindow.close();
-      clearMarkers();
       google.maps.event.removeListener(newPrisonsListener);
       prisonObject.address = prison.formatted_address;
       getPrisonLatLng(prisonObject.address);
       $('.tabs').show();
+      clearMarkers();
       createMarkerPrison(prison, map);
+      showPolice(prison);
     });
   });
 }
@@ -116,7 +125,7 @@ function showTrains() {
   service.textSearch(request, searchForStations);
   map.setCenter(new google.maps.LatLng(prisonObject.lat, prisonObject.lng));
   map.setZoom(12);
-  $('.trains').html('Hide trains');
+  $('.trains').addClass('hideTrains').removeClass('showTrains').html('hide trains');
 }
 
 function searchForStations(results, status) {
@@ -128,6 +137,13 @@ function searchForStations(results, status) {
   }
 }
 
+function hideStations() {
+  stationMarkers.forEach(station => {
+    station.setMap(null);
+  });
+  $('.trains').removeClass('hideTrains').addClass('showTrains').html('show trains');
+}
+
 function createMarkerStation(station, map) {
   const marker = new google.maps.Marker({
     position: station.geometry.location,
@@ -135,6 +151,7 @@ function createMarkerStation(station, map) {
     icon: 'https://cdn3.iconfinder.com/data/icons/mapicons/icons/steamtrain.png'
   });
   infoWindowStation(station, marker);
+  stationMarkers.push(marker);
 }
 
 function infoWindowStation(station, marker) {
@@ -145,9 +162,9 @@ function infoWindowStation(station, marker) {
                 <button class="destination waves-effect waves-teal btn-flat">get here</button>`
     });
     infoWindow.open(map, marker);
-    $('#map-canvas').on('click', '.destination', () => {
+    $('.destination').on('click', () => {
       destination.location = marker.getPosition();
-      journeyPlanner();
+      journeyPlanner(destination.location);
     });
   });
 }
@@ -163,6 +180,8 @@ function showAirports() {
       map.setZoom(9);
     });
   });
+  $('.airports').addClass('hideAirports').removeClass('showAirports').html('hide airports');
+
 }
 
 function createMarkerAirport(airport, map) {
@@ -173,6 +192,7 @@ function createMarkerAirport(airport, map) {
     icon: 'https://cdn4.iconfinder.com/data/icons/aiga-symbol-signs/612/aiga_air_transportation_bg-32.png'
   });
   infoWindowAirport(airport, marker);
+  airportMarkers.push(marker);
 }
 
 function infoWindowAirport(airport, marker) {
@@ -185,26 +205,63 @@ function infoWindowAirport(airport, marker) {
                 <button id="${airport.airport_name}" class="destination waves-effect waves-teal btn-flat">get here</button>`
     });
     infoWindow.open(map, marker);
-    $('#map-canvas').on('click', '.destination', () => {
+    $('.destination').on('click', () => {
       destination.location = '';
       destination.location = marker.getPosition();
-      journeyPlanner();
+      journeyPlanner(destination.location);
     });
   });
 }
 
+function hideAirports() {
+  airportMarkers.forEach(airport => {
+    airport.setMap(null);
+  });
+  $('.airports').removeClass('hideAirports').addClass('showAirports').html('show airports');
+}
 
+// police stations
+function showPolice(prison) {
+  const request = {
+    location: prison.geometry.location,
+    radius: '50000',
+    query: 'police'
+  };
+  service = new google.maps.places.PlacesService(map);
+  service.textSearch(request, searchForPolice);
+}
+
+function searchForPolice(results, status) {
+  if (status === google.maps.places.PlacesServiceStatus.OK) {
+    for (var i = 0; i < results.length; i++) {
+      var police = results[i];
+      createMarkerPolice(police, map);
+    }
+  }
+}
+
+function createMarkerPolice(police, map) {
+  const marker = new google.maps.Marker({
+    position: police.geometry.location,
+    map: map,
+    icon: 'https://cdn1.iconfinder.com/data/icons/windows8_icons_iconpharm/26/police.png'
+  });
+}
 
 
 // journey planner
-function journeyPlanner() {
-  const directionsService = new google.maps.DirectionsService;
-  const directionsDisplay = new google.maps.DirectionsRenderer;
+function journeyPlanner(destination) {
+  if (directionsDisplay !== null) {
+    directionsDisplay.setMap(null);
+    directionsDisplay = null;
+  }
+  directionsService = new google.maps.DirectionsService;
+  directionsDisplay = new google.maps.DirectionsRenderer({suppressMarkers: true});
   directionsDisplay.setMap(map);
   function calculateAndDisplayRoute(directionsService, directionsDisplay) {
     directionsService.route({
       origin: `${prisonObject.lat},${prisonObject.lng}`,
-      destination: destination.location,
+      destination,
       travelMode: 'DRIVING'
     }, function(response, status) {
       if (status === 'OK') {
@@ -215,31 +272,8 @@ function journeyPlanner() {
     });
   }
   calculateAndDisplayRoute(directionsService, directionsDisplay);
-  clearMarkers();
   infoWindow.close();
-
 }
 
+
 $(initMap);
-
-
-
-
-// car rentals
-
-// function showCars() {
-//   // ajax call to amadeus url , needing:
-//   // lat and lng - prisonObject.lat && prisonObject.lng
-//   // date -  pick up and drop off
-//   // radius and api key
-//   // https://api.sandbox.amadeus.com/v1.2/cars/search-circle?apikey=yGCL11tesreUoG0MGKkjSYqMsAMwEju3&latitude=35.1504&longitude=-114.57632&radius=42&pick_up=2016-11-07&drop_off=2016-11-08
-//   const today = new Date();
-//   let dd = today.getDate();
-//   let mm = today.getMonth()+1; //January is 0!
-//   const yyyy = today.getFullYear();
-//   if(dd<10) dd='0'+dd;
-//   if(mm<10) mm='0'+mm;
-//   const date = `${yyyy}-${mm}-${dd}`;
-//   const url = `https://api.sandbox.amadeus.com/v1.2/cars/search-circle?apikey=yGCL11tesreUoG0MGKkjSYqMsAMwEju3&latitude=${prisonObject.lat}&longitude=${prisonObject.lng}&radius=42&pick_up=${date}&drop_off=${date}`;
-//   $.ajax(url).done(data => console.log(data));
-// }
