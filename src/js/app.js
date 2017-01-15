@@ -16,7 +16,8 @@ let directionsDisplay = new google.maps.DirectionsRenderer({suppressMarkers: tru
 function initMap() {
   map = new google.maps.Map(document.getElementById('map-canvas'), {
     center: new google.maps.LatLng(51.519132, -0.094205),
-    zoom: 9
+    zoom: 9,
+    styles: [{"stylers":[{"visibility":"on"},{"saturation":-100},{"gamma":0.54}]},{"featureType":"road","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"color":"#4d4946"}]},{"featureType":"poi","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"poi","elementType":"labels.text","stylers":[{"visibility":"simplified"}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"color":"#ffffff"}]},{"featureType":"road.local","elementType":"labels.text","stylers":[{"visibility":"simplified"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#ffffff"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"gamma":0.48}]},{"featureType":"transit.station","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"road","elementType":"geometry.stroke","stylers":[{"gamma":7.18}]}]
     // styles: [{"stylers":[{"visibility":"on"},{"saturation":-100},{"gamma":0.54}]},{"featureType":"road","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"color":"#4d4946"}]},{"featureType":"poi","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"poi","elementType":"labels.text","stylers":[{"visibility":"simplified"}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"color":"#ffffff"}]},{"featureType":"road.local","elementType":"labels.text","stylers":[{"visibility":"simplified"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#ffffff"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"gamma":0.48}]},{"featureType":"transit.station","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"road","elementType":"geometry.stroke","stylers":[{"gamma":7.18}]}]
   });
   showPrisons();
@@ -109,7 +110,6 @@ function clearMarkers() {
 function setMapOnAll(map) {
   prisonMarkers.forEach((marker) => {
     marker.setMap(map);
-    prisonMarkers = [];
   });
 }
 
@@ -292,7 +292,6 @@ function journeyDetails() {
       avoidHighways: false,
       avoidTolls: false
     }, responseData);
-
   function responseData(responseDis, status) {
     if (status !== google.maps.DistanceMatrixStatus.OK || status !== 'OK'){
       console.log('Error:', status);
@@ -301,10 +300,9 @@ function journeyDetails() {
       console.log(responseDis);
       $('.tabs').on('click', '.journey', () => appendJourneyInfo(responseDis));
     }
-
   }
-
   function appendJourneyInfo(responseDis) {
+    // rewrite with html not append
     $('nav').append(`
       <div class="journeyDetails">
         <ul class="collection">
