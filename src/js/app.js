@@ -23,6 +23,7 @@ function initMap() {
   showPrisons();
   hideStations();
   hideAirports();
+  hidePolice();
   newPrisonsListener = map.addListener('center_changed', newPrisons);
   function newPrisons() {
     window.setTimeout(function() {
@@ -153,7 +154,7 @@ function createMarkerStation(station, map) {
   const marker = new google.maps.Marker({
     position: station.geometry.location,
     map: map,
-    icon: 'https://cdn3.iconfinder.com/data/icons/mapicons/icons/steamtrain.png'
+    icon: 'https://cdn4.iconfinder.com/data/icons/aiga-symbol-signs/612/aiga_rail_transportation_bg-32.png'
   });
   infoWindowStation(station, marker);
   stationMarkers.push(marker);
@@ -254,8 +255,14 @@ function createMarkerPolice(police, map) {
     map: map,
     icon: 'https://cdn1.iconfinder.com/data/icons/windows8_icons_iconpharm/26/police.png'
   });
+  policeMarkers.push(marker);
 }
 
+function hidePolice() {
+  policeMarkers.forEach((police) => {
+    police.setMap(null);
+  });
+}
 
 // journey planner
 function journeyPlanner(destination) {
