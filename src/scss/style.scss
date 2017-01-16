@@ -3,7 +3,6 @@ body {
   font-family: 'Montserrat', sans-serif;
   // font-family: 'Anton', sans-serif;
   // font-family: 'Patua One', cursive;
-
 }
 
 #map-canvas {
@@ -17,4 +16,26 @@ nav {
   left: 0;
   top: 0;
   z-index: 999999;
+  a {
+    background-color: black;
+  }
+  .tabs .tab a.active {
+    background-color: black;
+  }
+  .tabs .tab a:hover {
+    background-color: rgba(0, 0, 0, .1);
+  }
+}
+
+.main {
+  margin-top: 90px;
+}
+
+a.white-text.users.loggedIn.button-collapse {
+  margin: 0;
+}
+
+.userView > .background > img {
+  max-width: 100%;
+  margin-top: -8em;
 }

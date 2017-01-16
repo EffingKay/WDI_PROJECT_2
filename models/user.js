@@ -16,6 +16,13 @@ userSchema.virtual('passwordConfirmation').set(setPasswordConfirmation);
 userSchema.path('passwordHash').validate(validatePasswordHash);
 userSchema.path('email').validate(validateEmail);
 
+userSchema.set('toJSON', {
+  transform: function(doc, ret) {
+    delete ret.passwordHash;
+    delete ret.__v;
+    return ret;
+  }
+});
 
 function validatePassword(password) {
   return bcrypt.compareSync(password, this.passwordHash);

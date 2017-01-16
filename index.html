@@ -15,23 +15,36 @@
 </head>
 <body>
   <nav class="transparent z-depth-0 nav-extended">
-    <div class="container">
-      <a href="#" class="brand-logo left black-text">PRISON BREAK</a>
-      <ul id="nav-mobile" class="right hide-on-med-and-down">
-        <li><a class="black-text login loggedOut" href="#">Login</a></li>
-        <li><a class="black-text registration loggedOut" href="#">Register</a></li>
-        <li><a class="black-text logout loggedIn" href="#">Logout</a></li>
+    <div>
+      <!-- <a href="#" class="brand-logo left white-text"> PRISON BREAK </a> -->
+      <ul id="nav-mobile" class="hide-on-med-and-down">
+        <li><a class="white-text logo" href="#">PRISON BREAK</a></li>
+        <li><a class="white-text login loggedOut" href="#">Login</a></li>
+        <li><a class="white-text registration loggedOut" href="#">Register</a></li>
+        <li><a data-activates="slide-out" class="white-text users loggedIn button-collapse" href="#">Users</a></li>
+        <li><a class="white-text logout loggedIn" href="#">Logout</a></li>
       </ul>
       <ul class="tabs tabs-transparent">
-        <li class="tab"><a class="black-text showTrains trains" href="#">find trains</a></li>
-        <li class="tab"><a class="black-text showAirports airports" href="#">find airports</a></li>
-        <li class="tab"><a class="black-text journey" href="#">journey details</a></li>
+        <li class="tab"><a class="white-text showTrains trains" href="#">find trains</a></li>
+        <li class="tab"><a class="white-text showAirports airports" href="#">find airports</a></li>
+        <li class="tab"><a class="white-text journey" href="#modal1">journey details</a></li>
       </ul>
     </div>
   </nav>
-  <main class="container main">
-  </main>
-  <div id="map-canvas">
+
+  <ul id="slide-out" class="side-nav userList"></ul>
+  <main class="container main"></main>
+  <div id="map-canvas"></div>
+
+  <div id="modal1" class="modal bottom-sheet">
+    <div class="modal-content">
+      <h4>Journey details</h4>
+      <p id="modalJourneyDetails">Please select a journey first</p>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Close</a>
+    </div>
   </div>
+
 </body>
 </html>

@@ -1,5 +1,3 @@
-
-
 const apiUrl = 'http://localhost:3000/api';
 
 function init() {
@@ -7,6 +5,14 @@ function init() {
   $('.login').on('click', loginForm);
   $('.logout').on('click', logOut);
   $('body').on('submit', 'form', submittedForm);
+  $('.users').on('click', usersIndex);
+  $('body').on('click', '.backToMap', closeForms);
+  $('.button-collapse').sideNav({
+    menuWidth: 500, // Default is 240
+    edge: 'right', // Choose the horizontal origin
+    closeOnClick: true, // Closes side-nav on <a> clicks, useful for Angular/Meteor
+    draggable: true // Choose whether you can drag to open on touch screens
+  });
   if (getToken()) {
     loggedInState();
   } else {
@@ -17,6 +23,8 @@ function init() {
 
 function registerForm(e) {
   e.preventDefault();
+  $('#map-canvas').hide();
+  $('.tabs').hide();
   $('.main').show().html(`
     <h4>Registration form</h4>
     <div class="row">
@@ -46,13 +54,15 @@ function registerForm(e) {
           </div>
         </div>
         <button class="btn waves-effect waves-light" type="submit" name="action">Register</button>
+        <a class="backToMap waves-effect waves-teal btn-flat">Close</a>
       </form>
     </div>`);
 }
 
 function loginForm(e) {
   if (e) e.preventDefault();
-
+  $('#map-canvas').hide();
+  $('.tabs').hide();
   $('.main').show().html(`
     <h4>Log in</h4>
     <div class="row">
@@ -70,6 +80,7 @@ function loginForm(e) {
           </div>
         </div>
         <button class="btn waves-effect waves-light" type="submit" name="action">Log in</button>
+        <a class="backToMap waves-effect waves-teal btn-flat">Close</a>
       </form>
     </div>`);
 }
@@ -84,8 +95,15 @@ function submittedForm(e) {
   }).done((data) => {
     if (data.token) setToken(data.token);
     loggedInState();
+    setUser(data.user.username, data.user.email);
   });
   $('.main').hide();
+  $('#map-canvas').show();
+}
+
+function setUser(username, email) {
+  window.localStorage.setItem('username', username);
+  window.localStorage.setItem('email', email);
 }
 
 function setToken(token) {
@@ -119,6 +137,52 @@ function logOut(e) {
   loggedOutState();
   loginForm();
   removeToken();
+  $('.tab').hide();
 }
 
+function closeForms() {
+  $('.main').hide();
+  $('#map-canvas').show();
+}
+
+function getUsername() {
+  return  window.localStorage.getItem('username');
+}
+
+function getEmail() {
+  return  window.localStorage.getItem('email');
+}
+
+function usersIndex(e) {
+  if (e) e.preventDefault();
+  const username = getUsername();
+  const email = getEmail();
+  const url = `${apiUrl}/users`;
+  return $.ajax({
+    url,
+    method: 'GET',
+    beforeSend: setRequestHeader
+  }).done(data => {
+    $('.main').hide();
+    $('.userList').html('').append(`
+      <li><div class="userView">
+        <div class="background">
+          <img src="/images/side-bg.jpg">
+        </div>
+        <img class="circle" src="https://cdn3.iconfinder.com/data/icons/ballicons-free/128/wooman.png">
+        <a href="#!name"><span id="usernameSlide" class="black-text name">${username}</span></a>
+        <a href="#!email"><span id="emailSlide" class="black-text email">${email}</span></a>
+      </div></li>
+      <li><a class="subheader">My profile</a></li>
+      <li><a href="#!">Edit</a></li>
+      <li><div class="divider"></div></li>
+      <li><a class="subheader">Other escapees</a></li>
+      `);
+    $.each(data.users, (index, user) => {
+      $('.userList').append(`
+        <li><a class="waves-effect" href="#!">${user.username}</a></li>
+      `);
+    });
+  });
+}
 $(init);

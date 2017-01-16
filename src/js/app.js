@@ -3,9 +3,10 @@
 let map;
 let service;
 let infoWindow;
-let prisonMarkers = [];
+const prisonMarkers = [];
 const stationMarkers = [];
 const airportMarkers = [];
+const policeMarkers = [];
 let newPrisonsListener;
 const prisonObject = {};
 const destination = {};
@@ -17,8 +18,7 @@ function initMap() {
   map = new google.maps.Map(document.getElementById('map-canvas'), {
     center: new google.maps.LatLng(51.519132, -0.094205),
     zoom: 9,
-    styles: [{"stylers":[{"visibility":"on"},{"saturation":-100},{"gamma":0.54}]},{"featureType":"road","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"color":"#4d4946"}]},{"featureType":"poi","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"poi","elementType":"labels.text","stylers":[{"visibility":"simplified"}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"color":"#ffffff"}]},{"featureType":"road.local","elementType":"labels.text","stylers":[{"visibility":"simplified"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#ffffff"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"gamma":0.48}]},{"featureType":"transit.station","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"road","elementType":"geometry.stroke","stylers":[{"gamma":7.18}]}]
-    // styles: [{"stylers":[{"visibility":"on"},{"saturation":-100},{"gamma":0.54}]},{"featureType":"road","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"color":"#4d4946"}]},{"featureType":"poi","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"poi","elementType":"labels.text","stylers":[{"visibility":"simplified"}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"color":"#ffffff"}]},{"featureType":"road.local","elementType":"labels.text","stylers":[{"visibility":"simplified"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#ffffff"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"gamma":0.48}]},{"featureType":"transit.station","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"road","elementType":"geometry.stroke","stylers":[{"gamma":7.18}]}]
+    styles: [{'stylers': [{'visibility': 'on'},{'saturation': -100},{'gamma': 0.54}]},{'featureType': 'road','elementType': 'labels.icon','stylers': [{'visibility': 'off'}]},{'featureType': 'water','stylers': [{'color': '#4d4946'}]},{'featureType': 'poi','elementType': 'labels.icon','stylers': [{'visibility': 'off'}]},{'featureType': 'poi','elementType': 'labels.text','stylers': [{'visibility': 'simplified'}]},{'featureType': 'road','elementType': 'geometry.fill','stylers': [{'color': '#ffffff'}]},{'featureType': 'road.local','elementType': 'labels.text','stylers': [{'visibility': 'simplified'}]},{'featureType': 'water','elementType': 'labels.text.fill','stylers': [{'color': '#ffffff'}]},{'featureType': 'transit.line','elementType': 'geometry','stylers': [{'gamma': 0.48}]},{'featureType': 'transit.station','elementType': 'labels.icon','stylers': [{'visibility': 'off'}]},{'featureType': 'road','elementType': 'geometry.stroke','stylers': [{'gamma': 7.18}]}]
   });
   showPrisons();
   hideStations();
@@ -30,11 +30,16 @@ function initMap() {
     }, 200);
   }
   $('.tabs').hide();
-  $('.brand-logo').on('click', initMap);
+  $('.main').hide();
+  $('.logo').on('click', initMap);
   $('.tabs').on('click', '.showTrains', showTrains);
   $('.tabs').on('click', '.hideTrains', hideStations);
   $('.tabs').on('click', '.showAirports', showAirports);
   $('.tabs').on('click', '.hideAirports', hideAirports);
+  $('.journey').on('click', ()=> {
+    journeyDetails();
+    $('.modal').modal();
+  });
 }
 
 function showPrisons() {
@@ -302,16 +307,21 @@ function journeyDetails() {
     }
   }
   function appendJourneyInfo(responseDis) {
-    // rewrite with html not append
-    $('nav').append(`
-      <div class="journeyDetails">
-        <ul class="collection">
-          <li class="collection-item">
-            <p class="blue-text text-darken-2">Distance: ${responseDis.rows[0].elements[0].distance.text}</p>
-          </li>
-        </ul>
-      </div>
+    $('#modalJourneyDetails').html(`
+      <p>Distance: ${responseDis.rows[0].elements[0].distance.text}</p>
+      <p>Duration in traffic: ${responseDis.rows[0].elements[0].duration.text}</p>
     `);
+
+    // rewrite with html not append
+    // $('body').append(`
+    //   <div class="journeyDetails">
+    //     <ul class="collection">
+    //       <li class="collection-item">
+    //         <p class="blue-text text-darken-2">Distance: ${responseDis.rows[0].elements[0].distance.text}</p>
+    //       </li>
+    //     </ul>
+    //   </div>
+    // `);
   }
 }
 

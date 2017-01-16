@@ -6,9 +6,9 @@ const mongoose    = require('mongoose');
 const port        = process.env.PORT || 3000;
 const router      = require('./config/routes');
 const apiRouter   = require('./config/apiRoutes');
-const expressJWT = require('express-jwt');
-const config = require('./config/config');
-const app = express();
+const expressJWT  = require('express-jwt');
+const config      = require('./config/config');
+const app         = express();
 mongoose.connect(config.databaseUrl);
 
 app.use(morgan('dev'));
