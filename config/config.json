@@ -1,4 +1,0 @@
-{
-  "databaseUrl": "mongodb://localhost/wdi-project-2",
-  "secret": "Something top secret..."
-}
