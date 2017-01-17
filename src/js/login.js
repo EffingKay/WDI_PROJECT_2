@@ -116,11 +116,11 @@ function usersIndex(e) {
     $('.userList').html('').append(`
       <li><div class="userView">
         <div class="background">
-          <img src="/images/side-bg.jpg">
+          <img src="/images/blackwhitecity.jpg">
         </div>
         <img class="circle" src="https://cdn3.iconfinder.com/data/icons/ballicons-free/128/wooman.png">
-        <a href="#!name"><span id="usernameSlide" class="black-text name">${username}</span></a>
-        <a href="#!email"><span id="emailSlide" class="black-text email">${email}</span></a>
+        <a href="#!name"><span id="usernameSlide" class="white-text name">${username}</span></a>
+        <a href="#!email"><span id="emailSlide" class="white-text email">${email}</span></a>
       </div></li>
       <li><a class="subheader">My profile</a></li>
       <li><a href="#!">Edit</a></li>
@@ -134,4 +134,6 @@ function usersIndex(e) {
     });
   });
 }
+
+
 $(init);
