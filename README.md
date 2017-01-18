@@ -17,7 +17,7 @@ Google Places and Amadeus Sandbox API was used to locate requested places and pr
 ##Overview
 ![screen shot 2017-01-17 at 11 01 52](https://cloud.githubusercontent.com/assets/20258758/22019566/029df49a-dcac-11e6-9d79-ee4804962f57.png)
 
-The app I created is called **PRISON BREAK**. The original idea was to create an interactive map for the TV show Prison Break, however, I decided to create a map that show real prisons and train station, airports and police stations nearby. After you choose the prison and the destination - whether it is an airport or a train station, the map renders direction to get there. The app has added features of journey details - showing distance and duration of journey from prison to your chosen destination and user index, showing list of all other users that created a profile. 
+The app I created is called **PRISON BREAK**. The original idea was to create an interactive map for the TV show Prison Break, however, I decided to create a map that show real prisons and train station, airports and police stations nearby. After you choose the prison and the destination - whether it is an airport or a train station, the map renders direction to get there. The app has added features of journey details - showing distance and duration of journey from the prison to your chosen destination and user index, showing list of all other users that created a profile. 
 
 ![screen shot 2017-01-17 at 12 03 34](https://cloud.githubusercontent.com/assets/20258758/22019847/1f2099a0-dcad-11e6-9f43-47f2f4bd3ee9.png)
 
@@ -46,5 +46,5 @@ In the end, I managed to put together a MEN stack app, just after a few weeks at
 I would like to implement a feature which allows the user to plan the journey with waypoints in them. For example, if they chose an airport as their destination, they could chose to go there via train station. 
 
 ##Known issues
-- The prison marker don't always dissapear once to chose the prison to escape from. 
+- The prison marker don't always dissapear once you chose the prison to escape from. 
 - Unsuccessful login won't throw an error
